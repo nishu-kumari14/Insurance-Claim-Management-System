@@ -64,10 +64,17 @@ class _CreateClaimScreenState extends State<CreateClaimScreen> {
   }
 
   Future<void> _selectDischargeDate() async {
+    if (_selectedAdmissionDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select admission date first')),
+      );
+      return;
+    }
+    
     final date = await showDatePicker(
       context: context,
       initialDate: _selectedAdmissionDate ?? DateTime.now(),
-      firstDate: _selectedAdmissionDate ?? DateTime(2000),
+      firstDate: _selectedAdmissionDate!,
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
     if (date != null) {

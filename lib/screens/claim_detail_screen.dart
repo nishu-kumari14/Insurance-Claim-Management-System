@@ -48,12 +48,12 @@ class _ClaimDetailScreenState extends State<ClaimDetailScreen>
     if (_claim == null) return;
 
     final availableStatuses = ClaimStatus.values
-        .where((status) => _claim!.status.canTransitionTo(status))
+        .where((status) => status != _claim!.status && _claim!.status.canTransitionTo(status))
         .toList();
 
     if (availableStatuses.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No status transitions available')),
+        const SnackBar(content: Text('No status transitions available from current status')),
       );
       return;
     }
@@ -707,15 +707,23 @@ class _ClaimDetailScreenState extends State<ClaimDetailScreen>
                 return;
               }
 
+              final amount = double.tryParse(amountController.text);
+              if (amount == null || amount <= 0) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please enter a valid positive amount')),
+                );
+                return;
+              }
+
               if (advance == null) {
                 _addAdvance(
-                  double.parse(amountController.text),
+                  amount,
                   remarksController.text,
                 );
               } else {
                 _updateAdvance(
                   advance.id,
-                  double.parse(amountController.text),
+                  amount,
                   remarksController.text,
                 );
               }
@@ -843,16 +851,24 @@ class _ClaimDetailScreenState extends State<ClaimDetailScreen>
                   return;
                 }
 
+                final amount = double.tryParse(amountController.text);
+                if (amount == null || amount <= 0) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please enter a valid positive amount')),
+                  );
+                  return;
+                }
+
                 if (settlement == null) {
                   _addSettlement(
-                    double.parse(amountController.text),
+                    amount,
                     selectedDate!,
                     remarksController.text,
                   );
                 } else {
                   _updateSettlement(
                     settlement.id,
-                    double.parse(amountController.text),
+                    amount,
                     selectedDate!,
                     remarksController.text,
                   );
@@ -873,6 +889,21 @@ class _ClaimDetailScreenState extends State<ClaimDetailScreen>
     String remarks,
   ) async {
     if (_claim == null) return;
+    
+    // Validate settlement amount doesn't exceed remaining balance
+    final totalAfterSettlement = _claim!.totalSettlements + amount;
+    if (totalAfterSettlement > _claim!.totalBills) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Settlement amount exceeds total bills. Maximum allowed: ${(_claim!.totalBills - _claim!.totalSettlements).toStringAsFixed(2)}'
+          ),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+    
     final updated = await context.read<ClaimProvider>().addSettlement(
           _claim!.id,
           amount: amount,
@@ -894,6 +925,24 @@ class _ClaimDetailScreenState extends State<ClaimDetailScreen>
     String remarks,
   ) async {
     if (_claim == null) return;
+    
+    // Get current settlement amount
+    final currentSettlement = _claim!.settlements.firstWhere((s) => s.id == settlementId);
+    final otherSettlementsTotal = _claim!.totalSettlements - currentSettlement.amount;
+    
+    // Validate new settlement amount doesn't exceed remaining balance
+    if (otherSettlementsTotal + amount > _claim!.totalBills) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Settlement amount exceeds total bills. Maximum allowed: ${(_claim!.totalBills - otherSettlementsTotal).toStringAsFixed(2)}'
+          ),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+    
     final updated = await context.read<ClaimProvider>().updateSettlement(
           _claim!.id,
           settlementId,

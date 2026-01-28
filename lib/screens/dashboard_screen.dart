@@ -37,21 +37,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Claim'),
-        content: const Text('Are you sure you want to delete this claim?'),
+        content: const Text('Are you sure you want to delete this claim? This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () {
-              context.read<ClaimProvider>().deleteClaim(claimId);
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Claim deleted successfully')),
-              );
+            onPressed: () async {
+              final success = await context.read<ClaimProvider>().deleteClaim(claimId);
+              if (context.mounted) {
+                Navigator.pop(context);
+                if (success) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Claim deleted successfully')),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Failed to delete claim'),
+                      backgroundColor: AppColors.error,
+                    ),
+                  );
+                }
+              }
             },
-            child: const Text('Delete', style: TextStyle(color: AppColors.error)),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            child: const Text('Delete'),
           ),
         ],
       ),
@@ -110,6 +122,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       amount: claimProvider.totalClaims.toDouble(),
                       icon: Icons.assignment,
                       color: AppColors.primary,
+                      isCurrency: false,
                     ),
                     FinancialSummaryCard(
                       title: 'Total Bills',

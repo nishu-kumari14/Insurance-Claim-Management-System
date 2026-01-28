@@ -7,6 +7,7 @@ class FinancialSummaryCard extends StatelessWidget {
   final double amount;
   final Color? color;
   final IconData icon;
+  final bool isCurrency;
 
   const FinancialSummaryCard({
     Key? key,
@@ -14,6 +15,7 @@ class FinancialSummaryCard extends StatelessWidget {
     required this.amount,
     this.color,
     required this.icon,
+    this.isCurrency = true,
   }) : super(key: key);
 
   @override
@@ -45,7 +47,9 @@ class FinancialSummaryCard extends StatelessWidget {
             ),
             const SizedBox(height: AppDimens.paddingSmall),
             Text(
-              AppFormatters.formatCurrency(amount),
+              isCurrency 
+                  ? AppFormatters.formatCurrency(amount)
+                  : amount.toInt().toString(),
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,

@@ -1,0 +1,17 @@
+node_modules
+.git
+.gitignore
+.dart_tool
+.flutter
+*.log
+android/
+ios/
+linux/
+macos/
+windows/
+.vscode/
+.idea/
+test/
+DEPLOYMENT_GUIDE.md
+BUG_VERIFICATION_REPORT.md
+*.md

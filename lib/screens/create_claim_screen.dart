@@ -4,6 +4,7 @@ import 'package:insurance_claim_system/utils/constants.dart';
 import 'package:insurance_claim_system/utils/validators.dart';
 import 'package:insurance_claim_system/widgets/custom_button.dart';
 import 'package:insurance_claim_system/widgets/custom_text_field.dart';
+import 'package:insurance_claim_system/screens/claim_detail_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -110,7 +111,16 @@ class _CreateClaimScreenState extends State<CreateClaimScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Claim created successfully')),
         );
+        await context.read<ClaimProvider>().selectClaim(claim.id);
         Navigator.pop(context);
+        if (mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const ClaimDetailScreen(),
+            ),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {

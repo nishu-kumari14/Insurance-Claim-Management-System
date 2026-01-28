@@ -36,12 +36,10 @@ class _ClaimDetailScreenState extends State<ClaimDetailScreen>
 
   Future<void> _loadClaim() async {
     final claimProvider = context.read<ClaimProvider>();
-    if (claimProvider.selectedClaim != null) {
-      setState(() {
-        _claim = claimProvider.selectedClaim;
-        _isLoading = false;
-      });
-    }
+    setState(() {
+      _claim = claimProvider.selectedClaim;
+      _isLoading = false;
+    });
   }
 
   void _showStatusTransitionDialog() {
@@ -111,16 +109,42 @@ class _ClaimDetailScreenState extends State<ClaimDetailScreen>
           ],
         ),
       ),
-      body: _isLoading || _claim == null
+      body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : TabBarView(
-              controller: _tabController,
-              children: [
-                _buildOverviewTab(),
-                _buildBillsTab(),
-                _buildFinancialsTab(),
-              ],
-            ),
+          : _claim == null
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppDimens.paddingLarge),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.info_outline,
+                          size: 48,
+                          color: AppColors.textSecondary,
+                        ),
+                        const SizedBox(height: AppDimens.paddingSmall),
+                        const Text(
+                          'No claim selected',
+                          style: TextStyle(color: AppColors.textSecondary),
+                        ),
+                        const SizedBox(height: AppDimens.paddingLarge),
+                        CustomButton(
+                          label: 'Back to Dashboard',
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildOverviewTab(),
+                    _buildBillsTab(),
+                    _buildFinancialsTab(),
+                  ],
+                ),
     );
   }
 
@@ -599,16 +623,24 @@ class _ClaimDetailScreenState extends State<ClaimDetailScreen>
                 return;
               }
 
+              final amount = double.tryParse(amountController.text);
+              if (amount == null || amount <= 0) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please enter a valid positive amount')),
+                );
+                return;
+              }
+
               if (bill == null) {
                 _addBill(
                   descriptionController.text,
-                  double.parse(amountController.text),
+                  amount,
                 );
               } else {
                 _updateBill(
                   bill.id,
                   descriptionController.text,
-                  double.parse(amountController.text),
+                  amount,
                 );
               }
               Navigator.pop(context);

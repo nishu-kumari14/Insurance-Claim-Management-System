@@ -266,8 +266,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                       return ClaimCard(
                         claim: claim,
-                        onTap: () {
-                          context.read<ClaimProvider>().selectClaim(claim.id);
+                        onTap: () async {
+                          await context.read<ClaimProvider>().selectClaim(claim.id);
+                          if (!context.mounted) return;
                           Navigator.push(
                             context,
                             MaterialPageRoute(

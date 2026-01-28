@@ -17,6 +17,7 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   final TextEditingController _searchController = TextEditingController();
   ClaimStatus? _selectedStatus;
+  int _selectedIndex = 0;
 
   @override
   void initState() {
@@ -72,6 +73,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 600;
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text(AppStrings.appTitle),
@@ -104,198 +107,321 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       body: Consumer<ClaimProvider>(
         builder: (context, claimProvider, _) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(AppDimens.padding),
+          return DefaultTabController(
+            length: 2,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Statistics Cards
-                GridView.count(
-                  crossAxisCount: 2,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  mainAxisSpacing: AppDimens.paddingSmall,
-                  crossAxisSpacing: AppDimens.paddingSmall,
-                  children: [
-                    FinancialSummaryCard(
-                      title: 'Total Claims',
-                      amount: claimProvider.totalClaims.toDouble(),
-                      icon: Icons.assignment,
-                      color: AppColors.primary,
-                      isCurrency: false,
+                TabBar(
+                  onTap: (index) => setState(() => _selectedIndex = index),
+                  tabs: const [
+                    Tab(
+                      icon: Icon(Icons.dashboard),
+                      text: 'Overview',
                     ),
-                    FinancialSummaryCard(
-                      title: 'Total Bills',
-                      amount: claimProvider.totalBillsAmount,
-                      icon: Icons.receipt,
-                      color: AppColors.info,
-                    ),
-                    FinancialSummaryCard(
-                      title: 'Total Settled',
-                      amount: claimProvider.totalSettledAmount,
-                      icon: Icons.check_circle,
-                      color: AppColors.success,
-                    ),
-                    FinancialSummaryCard(
-                      title: 'Total Pending',
-                      amount: claimProvider.totalPendingAmount,
-                      icon: Icons.pending_actions,
-                      color: AppColors.warning,
+                    Tab(
+                      icon: Icon(Icons.assignment),
+                      text: 'Claims',
                     ),
                   ],
                 ),
-                const SizedBox(height: AppDimens.paddingLarge),
-
-                // Search and Filter
-                TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Search claims...',
-                    prefixIcon: const Icon(Icons.search),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AppDimens.borderRadius),
-                    ),
-                    suffixIcon: _searchController.text.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear),
-                            onPressed: () {
-                              _searchController.clear();
-                              setState(() {});
-                            },
-                          )
-                        : null,
-                  ),
-                  onChanged: (value) {
-                    setState(() {});
-                  },
-                ),
-                const SizedBox(height: AppDimens.paddingSmall),
-
-                // Status Filter
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
+                Expanded(
+                  child: TabBarView(
                     children: [
-                      FilterChip(
-                        label: const Text('All'),
-                        selected: _selectedStatus == null,
-                        onSelected: (_) {
-                          setState(() => _selectedStatus = null);
-                        },
-                      ),
-                      const SizedBox(width: AppDimens.paddingSmall),
-                      ...ClaimStatus.values.map((status) {
-                        return Padding(
-                          padding: const EdgeInsets.only(right: AppDimens.paddingSmall),
-                          child: FilterChip(
-                            label: Text(status.displayName),
-                            selected: _selectedStatus == status,
-                            onSelected: (_) {
-                              setState(() => _selectedStatus = status);
-                            },
-                          ),
-                        );
-                      }).toList(),
+                      _buildOverviewTab(claimProvider),
+                      _buildClaimsTab(claimProvider),
                     ],
                   ),
                 ),
-                const SizedBox(height: AppDimens.paddingLarge),
-
-                // Claims List
-                Text(
-                  'Your Claims',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: AppDimens.paddingSmall),
-
-                if (claimProvider.isLoading)
-                  const Center(child: CircularProgressIndicator())
-                else if (claimProvider.claims.isEmpty)
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(AppDimens.paddingLarge),
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.assignment_ind_outlined,
-                            size: 64,
-                            color: AppColors.greyLight,
-                          ),
-                          const SizedBox(height: AppDimens.paddingSmall),
-                          const Text(
-                            'No claims yet',
-                            style: TextStyle(color: AppColors.textSecondary),
-                          ),
-                          const SizedBox(height: AppDimens.paddingLarge),
-                          CustomButton(
-                            label: AppStrings.newClaim,
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const CreateClaimScreen(),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                else
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: claimProvider.claims.length,
-                    itemBuilder: (context, index) {
-                      final claim = claimProvider.claims[index];
-
-                      // Apply filters
-                      if (_selectedStatus != null && claim.status != _selectedStatus) {
-                        return const SizedBox.shrink();
-                      }
-
-                      if (_searchController.text.isNotEmpty) {
-                        final query = _searchController.text.toLowerCase();
-                        if (!claim.patientName.toLowerCase().contains(query) &&
-                            !claim.patientId.toLowerCase().contains(query) &&
-                            !claim.hospitalName.toLowerCase().contains(query)) {
-                          return const SizedBox.shrink();
-                        }
-                      }
-
-                      return ClaimCard(
-                        claim: claim,
-                        onTap: () async {
-                          await context.read<ClaimProvider>().selectClaim(claim.id);
-                          if (!context.mounted) return;
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const ClaimDetailScreen(),
-                            ),
-                          );
-                        },
-                        onDelete: () => _showDeleteDialog(context, claim.id),
-                      );
-                    },
-                  ),
               ],
             ),
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const CreateClaimScreen(),
+      floatingActionButton: _selectedIndex == 1
+          ? FloatingActionButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const CreateClaimScreen(),
+                  ),
+                );
+              },
+              backgroundColor: AppColors.primary,
+              child: const Icon(Icons.add),
+            )
+          : null,
+    );
+  }
+
+  Widget _buildOverviewTab(ClaimProvider claimProvider) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(AppDimens.padding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Dashboard Overview',
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          const SizedBox(height: AppDimens.paddingLarge),
+          
+          // Statistics Cards - 2x2 Grid
+          GridView.count(
+            crossAxisCount: 2,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            mainAxisSpacing: AppDimens.paddingSmall,
+            crossAxisSpacing: AppDimens.paddingSmall,
+            children: [
+              FinancialSummaryCard(
+                title: 'Total Claims',
+                amount: claimProvider.totalClaims.toDouble(),
+                icon: Icons.assignment,
+                color: AppColors.primary,
+                isCurrency: false,
+              ),
+              FinancialSummaryCard(
+                title: 'Total Bills',
+                amount: claimProvider.totalBillsAmount,
+                icon: Icons.receipt,
+                color: AppColors.info,
+              ),
+              FinancialSummaryCard(
+                title: 'Total Settled',
+                amount: claimProvider.totalSettledAmount,
+                icon: Icons.check_circle,
+                color: AppColors.success,
+              ),
+              FinancialSummaryCard(
+                title: 'Total Pending',
+                amount: claimProvider.totalPendingAmount,
+                icon: Icons.pending_actions,
+                color: AppColors.warning,
+              ),
+            ],
+          ),
+          const SizedBox(height: AppDimens.paddingXLarge),
+
+          // Status Summary
+          Text(
+            'Status Summary',
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+          const SizedBox(height: AppDimens.paddingSmall),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(AppDimens.padding),
+              child: Column(
+                children: [
+                  _buildStatusRow('Draft', claimProvider.draftClaims, AppColors.draftColor),
+                  _buildStatusRow('Submitted', claimProvider.submittedClaims, AppColors.submittedColor),
+                  _buildStatusRow('Approved', claimProvider.approvedClaims, AppColors.approvedColor),
+                  _buildStatusRow('Rejected', claimProvider.rejectedClaims, AppColors.rejectedColor),
+                  _buildStatusRow('Settled', claimProvider.settledClaims, AppColors.settledColor),
+                ],
+              ),
             ),
-          );
-        },
-        backgroundColor: AppColors.primary,
-        child: const Icon(Icons.add),
+          ),
+          const SizedBox(height: AppDimens.paddingLarge),
+
+          // Quick Actions
+          Text(
+            'Quick Actions',
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+          const SizedBox(height: AppDimens.paddingSmall),
+          Row(
+            children: [
+              Expanded(
+                child: CustomButton(
+                  label: 'New Claim',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CreateClaimScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusRow(String status, int count, Color color) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppDimens.paddingSmall),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 12,
+                height: 12,
+                decoration: BoxDecoration(
+                  color: color,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: AppDimens.paddingSmall),
+              Text(
+                status,
+                style: const TextStyle(fontWeight: FontWeight.w500),
+              ),
+            ],
+          ),
+          Text(
+            count.toString(),
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildClaimsTab(ClaimProvider claimProvider) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(AppDimens.padding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Search and Filter
+          TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              hintText: 'Search claims...',
+              prefixIcon: const Icon(Icons.search),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppDimens.borderRadius),
+              ),
+              suffixIcon: _searchController.text.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () {
+                        _searchController.clear();
+                        setState(() {});
+                      },
+                    )
+                  : null,
+            ),
+            onChanged: (value) {
+              setState(() {});
+            },
+          ),
+          const SizedBox(height: AppDimens.paddingSmall),
+
+          // Status Filter
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                FilterChip(
+                  label: const Text('All'),
+                  selected: _selectedStatus == null,
+                  onSelected: (_) {
+                    setState(() => _selectedStatus = null);
+                  },
+                ),
+                const SizedBox(width: AppDimens.paddingSmall),
+                ...ClaimStatus.values.map((status) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: AppDimens.paddingSmall),
+                    child: FilterChip(
+                      label: Text(status.displayName),
+                      selected: _selectedStatus == status,
+                      onSelected: (_) {
+                        setState(() => _selectedStatus = status);
+                      },
+                    ),
+                  );
+                }).toList(),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppDimens.paddingLarge),
+
+          if (claimProvider.isLoading)
+            const Center(child: CircularProgressIndicator())
+          else if (claimProvider.claims.isEmpty)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(AppDimens.paddingLarge),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.assignment_ind_outlined,
+                      size: 64,
+                      color: AppColors.greyLight,
+                    ),
+                    const SizedBox(height: AppDimens.paddingSmall),
+                    const Text(
+                      'No claims yet',
+                      style: TextStyle(color: AppColors.textSecondary),
+                    ),
+                    const SizedBox(height: AppDimens.paddingLarge),
+                    CustomButton(
+                      label: AppStrings.newClaim,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const CreateClaimScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: claimProvider.claims.length,
+              itemBuilder: (context, index) {
+                final claim = claimProvider.claims[index];
+
+                // Apply filters
+                if (_selectedStatus != null && claim.status != _selectedStatus) {
+                  return const SizedBox.shrink();
+                }
+
+                if (_searchController.text.isNotEmpty) {
+                  final query = _searchController.text.toLowerCase();
+                  if (!claim.patientName.toLowerCase().contains(query) &&
+                      !claim.patientId.toLowerCase().contains(query) &&
+                      !claim.hospitalName.toLowerCase().contains(query)) {
+                    return const SizedBox.shrink();
+                  }
+                }
+
+                return ClaimCard(
+                  claim: claim,
+                  onTap: () async {
+                    await context.read<ClaimProvider>().selectClaim(claim.id);
+                    if (!context.mounted) return;
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ClaimDetailScreen(),
+                      ),
+                    );
+                  },
+                  onDelete: () => _showDeleteDialog(context, claim.id),
+                );
+              },
+            ),
+        ],
       ),
     );
   }

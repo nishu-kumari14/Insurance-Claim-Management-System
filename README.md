@@ -2,7 +2,7 @@
 
 A comprehensive Flutter application for managing hospital insurance claims with complete workflow automation.
 
-## 🚀 Live Demo & Resources
+## Live Demo & Resources
 
 - **Live Application:** https://insurance-claim-management-system-beta.vercel.app/
 - **Video Walkthrough:** https://drive.google.com/file/d/1ExW4cAXWYdJbQAXfWrJ1EWbEg4fcd2LR/view?usp=sharing
@@ -202,14 +202,14 @@ The application uses **SharedPreferences** to persist all data locally on the de
 ## Recent Improvements & Bug Fixes
 
 ### Version 1.1.0 (Latest)
-- ✅ **Fixed Critical Bug**: Corrected `pendingAmount` calculation (now only subtracts settlements, not advances)
-- ✅ **Fixed Memory Leaks**: Added proper TextEditingController disposal in all dialog boxes
-- ✅ **Enhanced UX**: Added empty state illustrations for all empty lists
-- ✅ **Visual Feedback**: Added settlement progress bars on claim cards
-- ✅ **Real-Time Validation**: Upgraded form fields with instant validation feedback
-- ✅ **Smooth Animations**: Implemented slide + fade transitions between screens
-- ✅ **Quick Stats**: Added financial summary cards on claim cards showing pending amounts
-- ✅ **Code Quality**: Achieved perfect flutter analyze score (0 issues)
+- **Fixed Critical Bug**: Corrected `pendingAmount` calculation (now only subtracts settlements, not advances)
+- **Fixed Memory Leaks**: Added proper TextEditingController disposal in all dialog boxes
+- **Enhanced UX**: Added empty state illustrations for all empty lists
+- **Visual Feedback**: Added settlement progress bars on claim cards
+- **Real-Time Validation**: Upgraded form fields with instant validation feedback
+- **Smooth Animations**: Implemented slide + fade transitions between screens
+- **Quick Stats**: Added financial summary cards on claim cards showing pending amounts
+- **Code Quality**: Achieved perfect flutter analyze score (0 issues)
 
 ## Known Working Features
 
@@ -225,51 +225,6 @@ The application uses **SharedPreferences** to persist all data locally on the de
 ✅ Smooth screen transitions  
 ✅ Real-time form validation  
 ✅ Empty state handling with CTAs
-
-## Evaluation Criteria Met
-
-### ✓ Usability and UX
-- **Material Design 3** interface with modern aesthetics
-- **Empty States** with illustrations for better user guidance
-- **Settlement Progress Bars** showing visual progress (0-100%) on each claim
-- **Quick Stats** on claim cards displaying Total Bills, Settled, and Pending amounts
-- **Real-Time Form Validation** with instant feedback (green ✓ / red ✗ icons)
-- **Smooth Animations** for screen transitions (slide + fade effects)
-- **Two-Tab Dashboard** separating Overview (statistics) and Claims (list view)
-- **Search & Filter** by patient name, ID, hospital, and status
-- **Status Badges** with color coding for each claim status
-- **Responsive Layout** works perfectly on mobile, tablet, and web
-- **Intuitive Navigation** with clear call-to-action buttons
-- **Toast Notifications** for all user actions (success/error messages)
-- **Empty state screens** for claims, bills, advances, and settlements
-
-### ✓ Correctness of Business Logic
-- Proper status transitions with validation
-- Accurate financial calculations (fixed pending amount formula)
-- Correct data persistence with SharedPreferences
-- Input validation on all forms with real-time feedback
-- Settlement validation prevents exceeding total bills
-- Amount validation ensures positive values only
-- Date validation (discharge date must be after admission date)
-- No memory leaks (proper controller disposal)
-
-### ✓ Code Quality
-- Clean architecture with separation of concerns (Models → Services → Providers → UI)
-- Reusable widgets and services following DRY principles
-- Proper state management with Provider pattern
-- Comprehensive error handling with try-catch blocks
-- Well-documented code with clear comments
-- Type-safe with full null safety
-- Zero compilation errors (flutter analyze: No issues found!)
-- Proper resource cleanup (controller disposal, listener removal)
-- Responsive design that adapts to all screen sizes
-
-### ✓ Completeness of Flows
-- Complete claim lifecycle management
-- Full bill, advance, and settlement management
-- Status workflow implementation
-- Search and filtering capabilities
-- Dashboard with analytics
 
 ## Testing
 
@@ -304,12 +259,6 @@ To test all features:
 - Export to Excel/CSV
 - Photo attachments for bills
 - Payment integration
-
-## 📦 Deliverables
-
-✅ **Live Application Link:** https://insurance-claim-management-system-beta.vercel.app/
-✅ **GitHub Repository:** https://github.com/nishu-kumari14/Insurance-Claim-Management-System
-✅ **Video Walkthrough:** https://drive.google.com/file/d/1ExW4cAXWYdJbQAXfWrJ1EWbEg4fcd2LR/view?usp=sharing
 
 ## License
 

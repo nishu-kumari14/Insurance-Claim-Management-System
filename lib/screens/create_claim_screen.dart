@@ -113,15 +113,32 @@ class _CreateClaimScreenState extends State<CreateClaimScreen> {
       
       if (claim != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Claim created successfully')),
+          const SnackBar(
+            content: Text('Claim created successfully'),
+            backgroundColor: AppColors.success,
+            duration: Duration(seconds: 2),
+          ),
         );
         await claimProvider.selectClaim(claim.id);
         if (!mounted) return;
         Navigator.pop(context);
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => const ClaimDetailScreen(),
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) => const ClaimDetailScreen(),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              const begin = Offset(1.0, 0.0);
+              const end = Offset.zero;
+              const curve = Curves.easeInOutCubic;
+              var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+              return SlideTransition(
+                position: animation.drive(tween),
+                child: FadeTransition(
+                  opacity: animation,
+                  child: child,
+                ),
+              );
+            },
           ),
         );
       }

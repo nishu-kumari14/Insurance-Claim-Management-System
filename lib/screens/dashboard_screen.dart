@@ -140,15 +140,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => const CreateClaimScreen(),
-                  ),
+                  _createRoute(const CreateClaimScreen()),
                 );
               },
               backgroundColor: AppColors.primary,
               child: const Icon(Icons.add),
             )
           : null,
+    );
+  }
+
+  Route _createRoute(Widget page) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => page,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1.0, 0.0);
+        const end = Offset.zero;
+        const curve = Curves.easeInOutCubic;
+        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: FadeTransition(
+            opacity: animation,
+            child: child,
+          ),
+        );
+      },
     );
   }
 
@@ -237,9 +254,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => const CreateClaimScreen(),
-                      ),
+                      _createRoute(const CreateClaimScreen()),
                     );
                   },
                 ),
@@ -350,36 +365,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
           if (claimProvider.isLoading)
             const Center(child: CircularProgressIndicator())
           else if (claimProvider.claims.isEmpty)
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.all(AppDimens.paddingLarge),
-                child: Column(
-                  children: [
-                    Icon(
-                      Icons.assignment_ind_outlined,
-                      size: 64,
-                      color: AppColors.greyLight,
-                    ),
-                    const SizedBox(height: AppDimens.paddingSmall),
-                    const Text(
-                      'No claims yet',
-                      style: TextStyle(color: AppColors.textSecondary),
-                    ),
-                    const SizedBox(height: AppDimens.paddingLarge),
-                    CustomButton(
-                      label: AppStrings.newClaim,
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const CreateClaimScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
+            EmptyStateWidget(
+              title: 'No Claims Yet',
+              message: 'Start by creating your first insurance claim. Tap the button below to get started.',
+              icon: Icons.assignment_ind_outlined,
+              actionButton: () {
+                Navigator.push(
+                  context,
+                  _createRoute(const CreateClaimScreen()),
+                );
+              },
+              actionButtonLabel: 'Create Claim',
             )
           else
             ListView.builder(
@@ -403,19 +399,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   }
                 }
 
-                return ClaimCard(
-                  claim: claim,
-                  onTap: () async {
-                    await context.read<ClaimProvider>().selectClaim(claim.id);
-                    if (!context.mounted) return;
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ClaimDetailScreen(),
-                      ),
-                    );
-                  },
-                  onDelete: () => _showDeleteDialog(context, claim.id),
+                return FadeTransition(
+                  opacity: AlwaysStoppedAnimation(1.0),
+                  child: ClaimCard(
+                    claim: claim,
+                    onTap: () async {
+                      await context.read<ClaimProvider>().selectClaim(claim.id);
+                      if (!context.mounted) return;
+                      Navigator.push(
+                        context,
+                        _createRoute(const ClaimDetailScreen()),
+                      );
+                    },
+                    onDelete: () => _showDeleteDialog(context, claim.id),
+                  ),
                 );
               },
             ),

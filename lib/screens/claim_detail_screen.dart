@@ -6,6 +6,7 @@ import 'package:insurance_claim_system/utils/formatters.dart';
 import 'package:insurance_claim_system/widgets/custom_button.dart';
 import 'package:insurance_claim_system/widgets/custom_text_field.dart';
 import 'package:insurance_claim_system/widgets/financial_summary_card.dart';
+import 'package:insurance_claim_system/widgets/empty_state_widget.dart';
 import 'package:provider/provider.dart';
 
 class ClaimDetailScreen extends StatefulWidget {
@@ -297,14 +298,12 @@ class _ClaimDetailScreenState extends State<ClaimDetailScreen>
           ),
           const SizedBox(height: AppDimens.paddingSmall),
           if (_claim!.bills.isEmpty)
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.all(AppDimens.paddingLarge),
-                child: Text(
-                  'No bills added yet',
-                  style: TextStyle(color: AppColors.textSecondary),
-                ),
-              ),
+            EmptyStateWidget(
+              title: 'No Bills Added',
+              message: 'Add bills to track all medical expenses for this claim. Tap the button above to add your first bill.',
+              icon: Icons.receipt_long,
+              actionButton: () => _showBillDialog(),
+              actionButtonLabel: 'Add Bill',
             )
           else
             ListView.builder(
@@ -430,14 +429,12 @@ class _ClaimDetailScreenState extends State<ClaimDetailScreen>
           ),
           const SizedBox(height: AppDimens.paddingSmall),
           if (_claim!.advances.isEmpty)
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.all(AppDimens.paddingSmall),
-                child: Text(
-                  'No advances added yet',
-                  style: TextStyle(color: AppColors.textSecondary),
-                ),
-              ),
+            EmptyStateWidget(
+              title: 'No Advances Yet',
+              message: 'Track advance payments provided to patients or hospitals. Add an advance to get started.',
+              icon: Icons.payment,
+              actionButton: () => _showAdvanceDialog(),
+              actionButtonLabel: 'Add Advance',
             )
           else
             ListView.builder(
@@ -493,14 +490,12 @@ class _ClaimDetailScreenState extends State<ClaimDetailScreen>
           ),
           const SizedBox(height: AppDimens.paddingSmall),
           if (_claim!.settlements.isEmpty)
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.all(AppDimens.paddingSmall),
-                child: Text(
-                  'No settlements added yet',
-                  style: TextStyle(color: AppColors.textSecondary),
-                ),
-              ),
+            EmptyStateWidget(
+              title: 'No Settlements Yet',
+              message: 'Record settlement payments here. Settlements track how much of the bills have been paid.',
+              icon: Icons.check_circle_outline,
+              actionButton: () => _showSettlementDialog(),
+              actionButtonLabel: 'Record Settlement',
             )
           else
             ListView.builder(

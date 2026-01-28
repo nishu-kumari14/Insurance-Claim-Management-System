@@ -17,7 +17,6 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   final TextEditingController _searchController = TextEditingController();
   ClaimStatus? _selectedStatus;
-  int _selectedIndex = 0;
 
   @override
   void initState() {
@@ -109,9 +108,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             length: 2,
             child: Column(
               children: [
-                TabBar(
-                  onTap: (index) => setState(() => _selectedIndex = index),
-                  tabs: const [
+                const TabBar(
+                  tabs: [
                     Tab(
                       icon: Icon(Icons.dashboard),
                       text: 'Overview',
@@ -135,18 +133,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
           );
         },
       ),
-      floatingActionButton: _selectedIndex == 1
-          ? FloatingActionButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  _createRoute(const CreateClaimScreen()),
-                );
-              },
-              backgroundColor: AppColors.primary,
-              child: const Icon(Icons.add),
-            )
-          : null,
+      floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                _createRoute(const CreateClaimScreen()),
+              );
+            },
+            backgroundColor: AppColors.primary,
+            child: const Icon(Icons.add),
+          ),
     );
   }
 

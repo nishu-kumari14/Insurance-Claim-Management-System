@@ -29,32 +29,24 @@ jobs:
       - name: Build AppBundle
         run: flutter build appbundle --release
 
-      - name: Upload APK to Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: |
-            build/app/outputs/apk/release/app-release.apk
-            build/app/outputs/bundle/release/app-release.aab
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Upload APK as Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: APK Build
           path: |
             build/app/outputs/apk/release/app-release.apk
             build/app/outputs/bundle/release/app-release.aab
+          retention-days: 30
 
       - name: Create Release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v2
         if: success()
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: apk-${{ github.run_number }}
-          release_name: APK Build ${{ github.run_number }}
+          name: APK Build ${{ github.run_number }}
+          files: |
+            build/app/outputs/apk/release/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab
           body: |
             ## Insurance Claim Management System - APK Build
             
@@ -82,3 +74,5 @@ jobs:
             ✅ Offline data persistence
           draft: false
           prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

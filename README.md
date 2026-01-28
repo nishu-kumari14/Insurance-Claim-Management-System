@@ -2,6 +2,12 @@
 
 A comprehensive Flutter application for managing hospital insurance claims with complete workflow automation.
 
+## 🚀 Live Demo & Resources
+
+- **Live Application:** https://insurance-claim-management-system-beta.vercel.app/
+- **Video Walkthrough:** https://drive.google.com/file/d/1ExW4cAXWYdJbQAXfWrJ1EWbEg4fcd2LR/view?usp=sharing
+- **GitHub Repository:** https://github.com/nishu-kumari14/Insurance-Claim-Management-System
+
 ## Features
 
 ### Core Features
@@ -298,6 +304,12 @@ To test all features:
 - Export to Excel/CSV
 - Photo attachments for bills
 - Payment integration
+
+## 📦 Deliverables
+
+✅ **Live Application Link:** https://insurance-claim-management-system-beta.vercel.app/
+✅ **GitHub Repository:** https://github.com/nishu-kumari14/Insurance-Claim-Management-System
+✅ **Video Walkthrough:** https://drive.google.com/file/d/1ExW4cAXWYdJbQAXfWrJ1EWbEg4fcd2LR/view?usp=sharing
 
 ## License
 

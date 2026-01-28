@@ -49,10 +49,9 @@ class Claim {
     return settlements.fold(0.0, (sum, settlement) => sum + settlement.amount);
   }
 
-  // Calculate pending amount
+  // Calculate pending amount (amount still to be settled)
   double get pendingAmount {
-    double pending = totalBills - totalAdvances - totalSettlements;
-    return pending > 0 ? pending : 0;
+    return totalBills - totalSettlements;
   }
 
   // Calculate balance after settlements

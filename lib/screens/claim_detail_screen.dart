@@ -605,7 +605,11 @@ class _ClaimDetailScreenState extends State<ClaimDetailScreen>
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              descriptionController.dispose();
+              amountController.dispose();
+              Navigator.pop(context);
+            },
             child: const Text('Cancel'),
           ),
           TextButton(
@@ -638,6 +642,8 @@ class _ClaimDetailScreenState extends State<ClaimDetailScreen>
                   amount,
                 );
               }
+              descriptionController.dispose();
+              amountController.dispose();
               Navigator.pop(context);
             },
             child: const Text('Save'),
@@ -722,7 +728,11 @@ class _ClaimDetailScreenState extends State<ClaimDetailScreen>
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              amountController.dispose();
+              remarksController.dispose();
+              Navigator.pop(context);
+            },
             child: const Text('Cancel'),
           ),
           TextButton(
@@ -754,6 +764,8 @@ class _ClaimDetailScreenState extends State<ClaimDetailScreen>
                   remarksController.text,
                 );
               }
+              amountController.dispose();
+              remarksController.dispose();
               Navigator.pop(context);
             },
             child: const Text('Save'),
@@ -863,7 +875,11 @@ class _ClaimDetailScreenState extends State<ClaimDetailScreen>
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                amountController.dispose();
+                remarksController.dispose();
+                Navigator.pop(context);
+              },
               child: const Text('Cancel'),
             ),
             TextButton(
@@ -900,6 +916,8 @@ class _ClaimDetailScreenState extends State<ClaimDetailScreen>
                     remarksController.text,
                   );
                 }
+                amountController.dispose();
+                remarksController.dispose();
                 Navigator.pop(context);
               },
               child: const Text('Save'),

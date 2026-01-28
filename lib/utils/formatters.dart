@@ -3,8 +3,8 @@ import 'package:intl/intl.dart';
 class AppFormatters {
   static String formatCurrency(double amount) {
     final formatter = NumberFormat.currency(
-      locale: 'en_US',
-      symbol: '\$',
+      locale: 'en_IN',
+      symbol: '₹',
       decimalDigits: 2,
     );
     return formatter.format(amount);

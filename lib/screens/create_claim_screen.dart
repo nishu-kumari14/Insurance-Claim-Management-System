@@ -9,7 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class CreateClaimScreen extends StatefulWidget {
-  const CreateClaimScreen({Key? key}) : super(key: key);
+  const CreateClaimScreen({super.key});
 
   @override
   State<CreateClaimScreen> createState() => _CreateClaimScreenState();
@@ -89,6 +89,7 @@ class _CreateClaimScreenState extends State<CreateClaimScreen> {
   Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedAdmissionDate == null) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please select admission date')),
       );
@@ -98,7 +99,8 @@ class _CreateClaimScreenState extends State<CreateClaimScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final claim = await context.read<ClaimProvider>().createClaim(
+      final claimProvider = context.read<ClaimProvider>();
+      final claim = await claimProvider.createClaim(
         patientName: _patientNameController.text,
         patientId: _patientIdController.text,
         hospitalName: _hospitalNameController.text,
@@ -107,27 +109,27 @@ class _CreateClaimScreenState extends State<CreateClaimScreen> {
         notes: _notesController.text,
       );
 
-      if (claim != null && mounted) {
+      if (!mounted) return;
+      
+      if (claim != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Claim created successfully')),
         );
-        await context.read<ClaimProvider>().selectClaim(claim.id);
+        await claimProvider.selectClaim(claim.id);
+        if (!mounted) return;
         Navigator.pop(context);
-        if (mounted) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const ClaimDetailScreen(),
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const ClaimDetailScreen(),
+          ),
         );
       }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);

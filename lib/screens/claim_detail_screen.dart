@@ -9,7 +9,7 @@ import 'package:insurance_claim_system/widgets/financial_summary_card.dart';
 import 'package:provider/provider.dart';
 
 class ClaimDetailScreen extends StatefulWidget {
-  const ClaimDetailScreen({Key? key}) : super(key: key);
+  const ClaimDetailScreen({super.key});
 
   @override
   State<ClaimDetailScreen> createState() => _ClaimDetailScreenState();

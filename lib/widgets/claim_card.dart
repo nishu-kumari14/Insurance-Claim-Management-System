@@ -9,11 +9,11 @@ class ClaimCard extends StatelessWidget {
   final VoidCallback? onDelete;
 
   const ClaimCard({
-    Key? key,
+    super.key,
     required this.claim,
     required this.onTap,
     this.onDelete,
-  }) : super(key: key);
+  });
 
   Color getStatusColor(ClaimStatus status) {
     switch (status) {

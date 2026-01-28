@@ -10,13 +10,13 @@ class FinancialSummaryCard extends StatelessWidget {
   final bool isCurrency;
 
   const FinancialSummaryCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.amount,
     this.color,
     required this.icon,
     this.isCurrency = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

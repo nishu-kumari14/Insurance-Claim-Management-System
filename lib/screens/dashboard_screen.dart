@@ -8,7 +8,7 @@ import 'create_claim_screen.dart';
 import 'claim_detail_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({Key? key}) : super(key: key);
+  const DashboardScreen({super.key});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -73,8 +73,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = MediaQuery.of(context).size.width < 600;
-    
     return Scaffold(
       appBar: AppBar(
         title: const Text(AppStrings.appTitle),
@@ -343,7 +341,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       },
                     ),
                   );
-                }).toList(),
+                }),
               ],
             ),
           ),

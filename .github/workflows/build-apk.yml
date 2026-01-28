@@ -1,0 +1,84 @@
+name: Build APK
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.10.7'
+          channel: 'stable'
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Build AppBundle
+        run: flutter build appbundle --release
+
+      - name: Upload APK to Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            build/app/outputs/apk/release/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload APK as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: APK Build
+          path: |
+            build/app/outputs/apk/release/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        if: success()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: apk-${{ github.run_number }}
+          release_name: APK Build ${{ github.run_number }}
+          body: |
+            ## Insurance Claim Management System - APK Build
+            
+            **Build Number:** ${{ github.run_number }}
+            **Commit:** ${{ github.sha }}
+            **Author:** Nishu Kumari
+            
+            ### Downloads:
+            - `app-release.apk` - Android APK (for Android devices)
+            - `app-release.aab` - Android App Bundle (for Google Play Store)
+            
+            ### Installation:
+            1. Download `app-release.apk`
+            2. Transfer to Android device
+            3. Enable "Unknown Sources" in Settings
+            4. Open APK file and install
+            
+            ### Features:
+            ✅ Create insurance claims
+            ✅ Manage bills, advances, settlements
+            ✅ Real-time calculations
+            ✅ Status workflow (6 statuses)
+            ✅ Search and filter
+            ✅ Material Design 3 UI
+            ✅ Offline data persistence
+          draft: false
+          prerelease: false
